@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   LineChart,
   Line,
@@ -49,6 +50,7 @@ const STANDARD_ROOM_DAYS = 8;
 const OTHER_ROOM_DAYS = 7;
 
 export default function AnalyticsPage() {
+  const router = useRouter();
   const [data, setData] = useState<Analytics[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"descriptive" | "predictive" | "prescriptive">(
@@ -130,6 +132,16 @@ export default function AnalyticsPage() {
 
   return (
     <div className="min-h-screen p-6 bg-gray-900 text-gray-100 font-sans">
+      {/* 🔙 BACK BUTTON */}
+      <div className="mb-6">
+        <button
+          onClick={() => router.push("/")}
+          className="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-semibold shadow-md transition-all duration-300"
+        >
+          ← Back to Landing Page
+        </button>
+      </div>
+
       <header className="mb-10 text-center">
         <h1 className="text-4xl font-extrabold text-white tracking-tight">
           Revenue Optimization Dashboard
@@ -453,7 +465,9 @@ export default function AnalyticsPage() {
                         Recommendation 💡
                       </h3>
                     </div>
-                    <p className="text-gray-300 text-sm leading-relaxed">{recommendation}</p>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      {recommendation}
+                    </p>
                   </div>
                 </div>
 
