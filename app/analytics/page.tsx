@@ -123,15 +123,15 @@ export default function AnalyticsPage() {
   const linearRegression = (values: number[]) => {
     const n = values.length;
     if (n < 2) return values.map((v) => v);
-    
+
     const points = values.map((y, i) => ({ x: i, y: y }));
-    
+
     const xMean = points.reduce((a, b) => a + b.x, 0) / n;
     const yMean = points.reduce((a, b) => a + b.y, 0) / n;
 
     let numerator = 0;
     let denominator = 0;
-    
+
     for (const p of points) {
       numerator += (p.x - xMean) * (p.y - yMean);
       denominator += (p.x - xMean) ** 2;
@@ -444,17 +444,16 @@ export default function AnalyticsPage() {
       {tab === "prescriptive" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {data.map((room) => {
-            const totalBookings = room.bookingsOverTime.reduce(
-              (a, b) => a + b.count,
-              0
-            );
-            const avgBookings =
-              totalBookings / (room.bookingsOverTime.length || 1);
+            // --- FIX APPLIED: Use the same calculation as the Descriptive tab ---
+            const totalBookings = room.guestRecords.length;
+            const numberOfDays = room.bookingsOverTime.length || 1;
+            const avgBookings = totalBookings / numberOfDays;
+            // --- End of fix ---
 
             let recommendation = "";
             let optimalPrice = room.price;
 
-            // --- NEW: Define dynamic theme classes ---
+            // --- Define dynamic theme classes ---
             let titleClass = "text-blue-400";
             let hoverClass = "hover:shadow-blue-500/40";
             let badgeBgClass = "bg-blue-700/30";
@@ -468,7 +467,7 @@ export default function AnalyticsPage() {
               recommendation =
                 "Low demand. Consider reducing price or offering promos.";
               optimalPrice = room.price * 0.9;
-              // --- NEW: Set to RED theme for low demand ---
+              // --- Set to RED theme for low demand ---
               titleClass = "text-red-400";
               hoverClass = "hover:shadow-red-500/40";
               badgeBgClass = "bg-red-700/30";
@@ -479,9 +478,12 @@ export default function AnalyticsPage() {
             } else if (avgBookings < 7) {
               recommendation =
                 "Stable demand. Maintain current pricing strategy.";
-              
-              // --- THIS IS YOUR REQUESTED LOGIC ---
-              if (room.name === "Standard Room") {
+
+              // --- MODIFIED LOGIC: Apply green theme for Standard Room OR Deluxe Room ---
+              if (
+                room.name === "Standard Room" ||
+                room.name === "Deluxe Room"
+              ) {
                 titleClass = "text-green-400";
                 hoverClass = "hover:shadow-green-500/40";
                 badgeBgClass = "bg-green-700/30";
@@ -490,12 +492,12 @@ export default function AnalyticsPage() {
                 recIconClass = "bg-green-400";
                 recTextClass = "text-green-400";
               }
-              // Other rooms will use the default blue theme
+              // Other rooms will use the default blue/yellow theme if they are in this range
             } else {
               recommendation =
                 "High demand detected. Consider increasing price slightly.";
               optimalPrice = room.price * 1.1;
-              // --- NEW: Set to CYAN theme for high demand ---
+              // --- Set to CYAN theme for high demand ---
               titleClass = "text-cyan-400";
               hoverClass = "hover:shadow-cyan-500/40";
               badgeBgClass = "bg-cyan-700/30";
