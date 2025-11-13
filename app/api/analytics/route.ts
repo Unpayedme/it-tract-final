@@ -1,14 +1,13 @@
 import { prisma } from "@/lib/prisma";
 
-// Cache data for 1 minute
-let cache: { data: any; timestamp: number } | null = null;
-const CACHE_DURATION = 60000; // 60 seconds
+// ----------  shared cache object  ----------
+export let analyticsCache: { data: any; timestamp: number } | null = null;
+const CACHE_DURATION = 60000;
 
 export async function GET() {
   try {
-    // If cache is fresh, use it
-    if (cache && Date.now() - cache.timestamp < CACHE_DURATION) {
-      return Response.json(cache.data);
+    if (analyticsCache && Date.now() - analyticsCache.timestamp < CACHE_DURATION) {
+      return Response.json(analyticsCache.data);
     }
 
     const rooms = await prisma.room.findMany({
@@ -29,7 +28,7 @@ export async function GET() {
       });
 
       const bookingsOverTime = Object.entries(bookingCountsByDate)
-        .map(([date, count], index) => ({ date, count, timeIndex: index }))
+        .map(([date, count]) => ({ date, count }))
         .sort((a, b) => a.date.localeCompare(b.date));
 
       const guestRecords = room.bookings
@@ -42,11 +41,12 @@ export async function GET() {
       return { roomId: room.id, name: room.name, price: room.price, bookingsOverTime, guestRecords };
     });
 
-    // Save to cache
-    cache = { data: { analytics }, timestamp: Date.now() };
-    
+    analyticsCache = { data: { analytics }, timestamp: Date.now() };
     return Response.json({ analytics });
   } catch (error) {
     return Response.json({ error: "Failed to fetch analytics", analytics: [] }, { status: 500 });
   }
 }
+
+// ... existing code ...
+export const analyticsRoute = { analyticsCache };

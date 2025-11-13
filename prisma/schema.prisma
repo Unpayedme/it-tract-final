@@ -12,10 +12,9 @@ model Room {
   name        String
   description String
   price       Int
-  capacity    Int?      // ✅ Question mark = can be empty
   createdAt   DateTime  @default(now())
   bookings    Booking[]
-  
+
   @@index([id])
 }
 
@@ -23,10 +22,10 @@ model Booking {
   id         Int      @id @default(autoincrement())
   roomId     Int
   guestName  String
-  guestEmail String?  // ✅ Question mark = can be empty
+  guestEmail String?  
   createdAt  DateTime @default(now())
   room       Room     @relation(fields: [roomId], references: [id])
-  
+
   @@index([roomId])
   @@index([createdAt])
 }
