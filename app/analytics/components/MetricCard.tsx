@@ -1,4 +1,3 @@
-// app/analytics/components/MetricCard.tsx
 "use client";
 import React from "react";
 

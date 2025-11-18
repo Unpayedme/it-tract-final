@@ -7,12 +7,11 @@ import PredictiveTab from "./components/PredictiveTab";
 import PrescriptiveTab from "./components/PrescriptiveTab";
 import { ChevronLeft, BarChart, TrendingUp, Zap, LucideIcon } from "lucide-react";
 
-// Define a type for the possible active tab states
 type ActiveTab = "descriptive" | "predictive" | "prescriptive";
 
 // Define an interface for the TabButton props
 interface TabButtonProps {
-    activeTab: ActiveTab; // <--- The critical prop that was missing
+    activeTab: ActiveTab;
     tab: ActiveTab;
     label: string;
     colorClass: string;
@@ -34,10 +33,8 @@ export default function AnalyticsPage() {
         .catch(console.error);
     }
   }, []);
-
-  // Corrected Helper function: Now a proper functional component (React.FC) with defined types
+  
   const TabButton: React.FC<TabButtonProps> = ({ activeTab, tab, label, colorClass, icon: Icon }) => {
-    // FIX: activeTab is correctly destructured from props
     const isActive = activeTab === tab; 
     
     return (
@@ -103,7 +100,7 @@ export default function AnalyticsPage() {
             {activeTab === "predictive" && <PredictiveTab data={analytics} />}
             {activeTab === "prescriptive" && <PrescriptiveTab data={analytics} />}
 
-            {/* Placeholder/Fallback for clarity */}
+            {/* Placeholder/Fallback */}
             {!analytics.length && (
                 <div className="p-10 text-center bg-gray-800 rounded-xl mt-10">
                     <p className="text-xl text-gray-400">Loading analytics data...</p>

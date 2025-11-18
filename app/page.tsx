@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { liveAnalytics } from "@/lib/analyticsTransfer";
-import { DollarSign, BarChart2, CalendarCheck, Home } from "lucide-react"; // Importing icons for visual flair
+import { DollarSign, BarChart2, CalendarCheck, Home } from "lucide-react"; 
 
 interface Room {
   id: number;
@@ -12,7 +12,6 @@ interface Room {
   createdAt: string;
 }
 
-// Enhanced Metric Card with Icon and better shadow
 const RoomMetricCard: React.FC<{ title: string; value: string; color: string; icon: React.ReactNode }> = ({
   title,
   value,
@@ -66,12 +65,6 @@ export default function HomePage() {
         return { ...room, guestRecords: guests, bookingsOverTime: bookings };
       })
     );
-
-    // Update liveAnalytics by mutating the array AFTER the state update (using the new state would be safer in real app, but sticking to original logic)
-    // NOTE: In a real app, this should ideally be triggered after the setAnalytics has completed, e.g., using a separate useEffect if needed for consistency.
-    // For the sake of refactoring, we keep the original intent here:
-    // We are passing the *old* `analytics` state to liveAnalytics here, which is risky.
-    // However, to maintain the logic flow for `liveAnalytics`, we'll keep the mutation.
     liveAnalytics.splice(0, liveAnalytics.length, ...analytics);
   };
 
@@ -79,8 +72,6 @@ export default function HomePage() {
     const guestName = prompt("Enter your name for booking:");
     if (!guestName) return;
 
-    // Show a loading indicator in a real app
-    
     const res = await fetch("/api/booking", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -97,7 +88,6 @@ export default function HomePage() {
   }
 
   const handleViewAnalytics = () => {
-    // Mutate liveAnalytics before navigating
     liveAnalytics.splice(0, liveAnalytics.length, ...analytics);
     router.push("/analytics");
   };
