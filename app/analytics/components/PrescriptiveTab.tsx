@@ -153,6 +153,32 @@ const cubicRegression = (values: number[]) => {
   }
 };
 
+// ---------- Exponential Smoothing ----------
+const exponentialSmoothing = (values: number[], alpha = 0.3) => {
+  if (values.length === 0) return [];
+  const smooth: number[] = [values[0]];
+  for (let i = 1; i < values.length; i++) {
+    smooth.push(alpha * values[i] + (1 - alpha) * smooth[i - 1]);
+  }
+  return smooth;
+};
+
+// ---------- LOESS (Simple Moving Weighted Average) ----------
+const loess = (values: number[], span = 0.3) => {
+  const n = values.length;
+  const result: number[] = [];
+  const window = Math.max(2, Math.floor(n * span));
+  for (let i = 0; i < n; i++) {
+    const start = Math.max(0, i - window);
+    const end = Math.min(n, i + window);
+    const sum = values.slice(start, end).reduce((a, b) => a + b, 0);
+    const avg = sum / (end - start);
+    result.push(avg);
+  }
+  return result;
+};
+
+// ---------- Calculate R² ----------
 const calculateR2 = (actual: number[], predicted: number[]) => {
   const n = actual.length;
   if (n < 2) return 1;
@@ -165,7 +191,7 @@ const calculateR2 = (actual: number[], predicted: number[]) => {
 // ---------- Component ----------
 const PrescriptiveTab: React.FC<Props> = ({ data }) => {
   const [trendlineType, setTrendlineType] = useState<
-    "linear" | "quadratic" | "cubic"
+    "linear" | "quadratic" | "cubic" | "expSmooth" | "loess"
   >("linear");
 
   return (
@@ -197,21 +223,48 @@ const PrescriptiveTab: React.FC<Props> = ({ data }) => {
           date: room.bookingsOverTime[i].date,
         }));
 
+        // ---------- Compute Trendline ----------
         let trendline: number[] = [];
-        if (trendlineType === "linear") trendline = linearRegression(dailyCounts);
-        else if (trendlineType === "quadratic")
-          trendline = quadraticRegression(dailyCounts);
-        else trendline = cubicRegression(dailyCounts);
+        switch (trendlineType) {
+          case "linear":
+            trendline = linearRegression(dailyCounts);
+            break;
+          case "quadratic":
+            trendline = quadraticRegression(dailyCounts);
+            break;
+          case "cubic":
+            trendline = cubicRegression(dailyCounts);
+            break;
+          case "expSmooth":
+            trendline = exponentialSmoothing(dailyCounts);
+            break;
+          case "loess":
+            trendline = loess(dailyCounts);
+            break;
+        }
 
+        // ---------- Forecast Next Day ----------
         const nextIndex = dailyCounts.length;
-        const nextDate = new Date(room.bookingsOverTime[nextIndex - 1].date);
-        nextDate.setDate(nextDate.getDate() + 1);
         let nextTrend = 0;
-        if (trendlineType === "linear")
-          nextTrend = linearRegression([...dailyCounts, 0]).slice(-1)[0];
-        else if (trendlineType === "quadratic")
-          nextTrend = quadraticRegression([...dailyCounts, 0]).slice(-1)[0];
-        else nextTrend = cubicRegression([...dailyCounts, 0]).slice(-1)[0];
+        const extended = [...dailyCounts, dailyCounts[dailyCounts.length - 1]];
+        switch (trendlineType) {
+          case "linear":
+            nextTrend = linearRegression(extended).slice(-1)[0];
+            break;
+          case "quadratic":
+            nextTrend = quadraticRegression(extended).slice(-1)[0];
+            break;
+          case "cubic":
+            nextTrend = cubicRegression(extended).slice(-1)[0];
+            break;
+          case "expSmooth":
+            nextTrend = exponentialSmoothing(extended).slice(-1)[0];
+            break;
+          case "loess":
+            nextTrend = loess(extended).slice(-1)[0];
+            break;
+        }
+
         const trendlineData = trendline
           .map((y, i) => ({ x: i, y }))
           .concat({ x: nextIndex, y: nextTrend });
@@ -277,7 +330,12 @@ const PrescriptiveTab: React.FC<Props> = ({ data }) => {
                   value={trendlineType}
                   onChange={(e) =>
                     setTrendlineType(
-                      e.target.value as "linear" | "quadratic" | "cubic"
+                      e.target.value as
+                        | "linear"
+                        | "quadratic"
+                        | "cubic"
+                        | "expSmooth"
+                        | "loess"
                     )
                   }
                   className="bg-gray-700 text-white text-sm rounded px-2 py-1"
@@ -285,6 +343,8 @@ const PrescriptiveTab: React.FC<Props> = ({ data }) => {
                   <option value="linear">Linear</option>
                   <option value="quadratic">Quadratic</option>
                   <option value="cubic">Cubic</option>
+                  <option value="expSmooth">Exponential Smoothing</option>
+                  <option value="loess">LOESS</option>
                 </select>
                 <span className="text-sm text-gray-400 font-mono ml-2">
                   R² = {r2.toFixed(3)}

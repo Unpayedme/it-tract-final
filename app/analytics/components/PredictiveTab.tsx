@@ -12,8 +12,8 @@ const movingAverage = (values: number[], window = 3): (number | null)[] =>
 
 const exponentialSmoothing = (values: number[], alpha = 0.3): (number | null)[] => {
   if (values.length === 0) return [];
-  const smooth: (number | null)[] = [null]; // first day N/A
-  smooth.push(values[0]); // second day = first actual
+  const smooth: (number | null)[] = [null];
+  smooth.push(values[0]);
   for (let i = 1; i < values.length; i++) {
     smooth.push(alpha * values[i] + (1 - alpha) * (smooth[i] as number));
   }
@@ -52,6 +52,7 @@ const PredictiveTab: React.FC<Props> = ({ data }) => {
 
         const nextMA = counts.slice(-3).length === 3 ? counts.slice(-3).reduce((a, b) => a + b, 0) / 3 : null;
         const nextES = es[es.length - 1] !== null ? 0.3 * counts[counts.length - 1] + 0.7 * (es[es.length - 1] as number) : null;
+
         const n = counts.length;
         const xMean = (n - 1) / 2;
         const yMean = counts.reduce((a, b) => a + b, 0) / n;
@@ -64,7 +65,7 @@ const PredictiveTab: React.FC<Props> = ({ data }) => {
         const intercept = yMean - slope * xMean;
         const nextLR = slope * n + intercept;
 
-        // Build chart data with additional next-day prediction
+        // Chart data including next-day prediction
         const chartData = [
           ...room.bookingsOverTime.map((b, i) => ({
             date: b.date,
@@ -85,6 +86,7 @@ const PredictiveTab: React.FC<Props> = ({ data }) => {
         return (
           <div key={room.roomId} className="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-2xl">
             <h2 className="text-2xl font-bold mb-4 text-blue-400">{room.name} Forecast 📈</h2>
+
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -98,6 +100,26 @@ const PredictiveTab: React.FC<Props> = ({ data }) => {
                 <Line type="monotone" dataKey="regression" stroke="#ef4444" name="Linear Regression" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
+
+            {/* FORECAST BOX (NEWLY ADDED) */}
+            <div className="mt-4 bg-gray-900 border border-gray-700 rounded-lg p-4">
+              <h3 className="text-lg font-semibold mb-2 text-cyan-400">📅 Next-Day Forecast ({nextDateStr})</h3>
+
+              <p className="text-gray-300">
+                <span className="text-cyan-300 font-bold">Moving Average:</span>{" "}
+                {nextMA !== null ? nextMA.toFixed(2) : "N/A"}
+              </p>
+
+              <p className="text-gray-300">
+                <span className="text-cyan-300 font-bold">Exponential Smoothing:</span>{" "}
+                {nextES !== null ? nextES.toFixed(2) : "N/A"}
+              </p>
+
+              <p className="text-gray-300">
+                <span className="text-cyan-300 font-bold">Linear Regression:</span>{" "}
+                {nextLR !== null ? nextLR.toFixed(2) : "N/A"}
+              </p>
+            </div>
           </div>
         );
       })}
