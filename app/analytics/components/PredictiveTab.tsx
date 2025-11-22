@@ -101,7 +101,7 @@ const PredictiveTab: React.FC<Props> = ({ data }) => {
               </LineChart>
             </ResponsiveContainer>
 
-            {/* FORECAST BOX (NEWLY ADDED) */}
+            {/* FORECAST BOX */}
             <div className="mt-4 bg-gray-900 border border-gray-700 rounded-lg p-4">
               <h3 className="text-lg font-semibold mb-2 text-cyan-400">📅 Next-Day Forecast ({nextDateStr})</h3>
 
