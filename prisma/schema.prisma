@@ -4,28 +4,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
 }
 
-model Room {
-  id          Int       @id @default(autoincrement())
-  name        String
-  description String
-  price       Int
-  createdAt   DateTime  @default(now())
-  bookings    Booking[]
-
-  @@index([id])
-}
-
-model Booking {
-  id         Int      @id @default(autoincrement())
-  roomId     Int
-  guestName  String
-  guestEmail String?  
-  createdAt  DateTime @default(now())
-  room       Room     @relation(fields: [roomId], references: [id])
-
-  @@index([roomId])
-  @@index([createdAt])
+model Member {
+  member_id        Int     @id @default(autoincrement())
+  member_name      String
+  membership_type  String
+  attendance_days  Int
+  trainer_assigned String
+  monthly_fee      Float
 }
