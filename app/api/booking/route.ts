@@ -1,26 +1,40 @@
 import { prisma } from "@/lib/prisma";
 
-// ----  import the cache object  ----
+// ---- import the cache object ----
 import { analyticsRoute } from "../analytics/route";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { roomId, guestName } = body ?? {};
+    const { roomId, guestName, guestEmail } = body ?? {};
 
-    if (!roomId || !guestName) {
-      return Response.json({ error: "Missing roomId or guestName" }, { status: 400 });
+    if (!roomId || !guestName || !guestEmail) {
+      return Response.json(
+        { error: "Missing roomId, guestName, or guestEmail" },
+        { status: 400 }
+      );
     }
 
     const booking = await prisma.booking.create({
-      data: { roomId: Number(roomId), guestName: String(guestName) },
-      select: { id: true, roomId: true, guestName: true, createdAt: true },
+      data: {
+        roomId: Number(roomId),
+        guestName: String(guestName),
+        guestEmail: String(guestEmail),
+      },
+      select: {
+        id: true,
+        roomId: true,
+        guestName: true,
+        guestEmail: true,
+        createdAt: true,
+      },
     });
 
-    analyticsRoute.analyticsCache = null; // ✅ mutate via namespace
+    analyticsRoute.analyticsCache = null; // clear cache
     return Response.json({ booking });
+
   } catch (error) {
+    console.error("BOOKING ERROR:", error);
     return Response.json({ error: "Failed to create booking" }, { status: 500 });
   }
-  
 }

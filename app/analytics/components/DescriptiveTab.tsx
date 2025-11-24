@@ -46,12 +46,6 @@ const DescriptiveTab: React.FC<Props> = ({ data: initialData }) => {
         const totalSales = totalBookings * room.price;
         const avgDailyBookings = totalBookings / (chartBookings.length || 1);
 
-        const guestNamesByDate: Record<string, string[]> = {};
-        room.guestRecords.forEach(g => {
-          if (!guestNamesByDate[g.date]) guestNamesByDate[g.date] = [];
-          guestNamesByDate[g.date].push(g.guestName);
-        });
-
         return (
           <div key={room.roomId} className="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-lg flex flex-col hover:scale-[1.01] transition-all duration-200">
             <h2 className="text-2xl font-bold mb-4 text-blue-400">{room.name}</h2>
@@ -74,21 +68,24 @@ const DescriptiveTab: React.FC<Props> = ({ data: initialData }) => {
               </ResponsiveContainer>
             </div>
 
+            {/* Updated Table: One row per guest per date */}
             <div className="overflow-x-auto mt-4">
               <table className="min-w-full divide-y divide-gray-700">
                 <thead className="bg-gray-900 text-gray-200">
                   <tr>
                     <th className="px-4 py-2 text-left">Date</th>
-                    <th className="px-4 py-2 text-left">Guests</th>
+                    <th className="px-4 py-2 text-left">Guest</th>
                   </tr>
                 </thead>
                 <tbody className="bg-gray-800 divide-y divide-gray-700 text-gray-300">
-                  {chartBookings.map(b => (
-                    <tr key={b.date} className="hover:bg-gray-700 transition-colors">
-                      <td className="px-4 py-2">{new Date(b.date).toLocaleDateString('en-US', { month:'short', day:'numeric' })}</td>
-                      <td className="px-4 py-2">{guestNamesByDate[b.date]?.join(", ") || "No Bookings"}</td>
-                    </tr>
-                  ))}
+                  {room.guestRecords
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                    .map((g, idx) => (
+                      <tr key={`${g.date}-${idx}`} className="hover:bg-gray-700 transition-colors">
+                        <td className="px-4 py-2">{new Date(g.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
+                        <td className="px-4 py-2">{g.guestName}</td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
