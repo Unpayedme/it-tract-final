@@ -18,14 +18,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 
-// --- HISTORICAL DATA (Static for Analytics Demo) ---
-const HISTORICAL_REVENUE = [
-  { period: 1, revenue: 1500 }, { period: 2, revenue: 1550 }, { period: 3, revenue: 1620 }, { period: 4, revenue: 1580 },
-  { period: 5, revenue: 1700 }, { period: 6, revenue: 1750 }, { period: 7, revenue: 1800 }, { period: 8, revenue: 1780 },
-  { period: 9, revenue: 1850 }, { period: 10, revenue: 1900 }, { period: 11, revenue: 1950 }, { period: 12, revenue: 2100 },
-  { period: 13, revenue: 2050 }, { period: 14, revenue: 2150 }, { period: 15, revenue: 2200 }, { period: 16, revenue: 2300 },
-  { period: 17, revenue: 2250 }, { period: 18, revenue: 2400 }, { period: 19, revenue: 2450 }, { period: 20, revenue: 2500 },
-];
+// Note: chart now derives series directly from DB via `/api/revenue`.
 
 // --- ANALYTICS UTILITIES ---
 const calculateLinearRegression = (data) => {
@@ -71,6 +64,7 @@ const calculateMovingAverage = (data, window = 3) => {
 };
 
 const generatePredictiveData = (baseData) => {
+  if (!baseData || baseData.length === 0) return [];
   let processed = calculateLinearRegression(baseData);
   processed = calculateExponentialSmoothing(processed, 0.5);
   processed = calculateMovingAverage(processed, 3);
@@ -152,6 +146,33 @@ const App = () => {
     fetchMembers();
   }, []);
 
+  // Fetch revenue time-series from the server (last point reflects DB totals)
+  const [predictiveData, setPredictiveData] = useState([]);
+  const [revenueLoading, setRevenueLoading] = useState(false);
+
+  const fetchRevenue = async () => {
+    setRevenueLoading(true);
+    try {
+      const res = await fetch('/api/revenue');
+      if (!res.ok) throw new Error('Failed to load revenue');
+      const json = await res.json();
+      if (json.series) {
+        setPredictiveData(generatePredictiveData(json.series));
+      }
+    } catch (err) {
+      console.error('Revenue fetch error', err);
+    } finally {
+      setRevenueLoading(false);
+    }
+  };
+
+  // Fetch revenue once on mount. Polling disabled to avoid repeated execution.
+  useEffect(() => {
+    fetchRevenue();
+  }, []);
+
+  // Chart data is sourced from `/api/revenue`. UI operations call `fetchRevenue()` after changes.
+
   // 2. Add/Edit Member (POST/PUT)
   const handleAddMember = async (e) => {
     e.preventDefault();
@@ -192,6 +213,8 @@ const App = () => {
       setShowModal(false);
       setEditingMember(null);
       resetForm();
+      // refresh revenue chart after changes
+      try { fetchRevenue(); } catch (e) { /* ignore */ }
     } catch (error) {
       console.error("Operation Error:", error);
       alert("Failed to save data. Check database connection.");
@@ -202,12 +225,18 @@ const App = () => {
 
   // 3. Delete Member (DELETE)
 const handleDelete = async (id) => {
-  console.log('Deleting member ID:', id); // should print a number
+  console.log('Deleting member ID:', id);
   if (!id) return alert('No ID to delete');
 
-  const res = await fetch(`/api/members/${id}`, { method: 'DELETE' });
-  if (!res.ok) throw new Error('Delete failed');
-  setMembers(prev => prev.filter(m => m.member_id !== id));
+  try {
+    const res = await fetch(`/api/members/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Delete failed');
+    setMembers(prev => prev.filter(m => m.member_id !== id));
+    try { fetchRevenue(); } catch (e) { /* ignore */ }
+  } catch (err) {
+    console.error('Delete error', err);
+    alert('Failed to delete member');
+  }
 };
 
   const handleEdit = (member) => {
@@ -250,7 +279,8 @@ const handleDelete = async (id) => {
     return { totalMembers, totalRevenue, avgFee, avgAttendance, typeChartData };
   }, [members]);
 
-  const predictiveData = useMemo(() => generatePredictiveData(HISTORICAL_REVENUE), []);
+  // Chart uses predictive data generated from the DB-derived series
+  const chartData = predictiveData;
 
   const prescriptions = useMemo(() => {
     const suggestions = [];
@@ -263,9 +293,9 @@ const handleDelete = async (id) => {
       });
     }
 
-    if (predictiveData.length > 4) {
-      const startReg = predictiveData[0].regression ?? 0;
-      const endReg = predictiveData[predictiveData.length-4].regression ?? 0;
+    if (chartData.length > 4) {
+      const startReg = chartData[0].regression ?? 0;
+      const endReg = chartData[chartData.length-4].regression ?? 0;
       const slope = endReg - startReg;
       
       if (slope > 0) {
@@ -409,7 +439,7 @@ const handleDelete = async (id) => {
                   </div>
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={predictiveData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                      <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis dataKey="period" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                         <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={val => `$${val}`} />
