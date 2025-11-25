@@ -3,7 +3,7 @@ import { Database } from 'lucide-react';
 
 const Header = ({ activeTab, loading, membersCount, serverError }) => {
   return (
-    <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+    <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4s">
       <div>
         <h2 className="text-3xl font-bold text-slate-800 tracking-tight">
           {activeTab === 'dashboard' ? 'Business Overview' : 'Member Management'}

@@ -26,7 +26,7 @@ const MembersView = ({
     <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
        
        {/* Controls */}
-       <div className="flex flex-col md:flex-row justify-between gap-4 bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+       <div className="flex flex-col md:flex-row justify-between gap-4 bg-white p-5 rounded-xl shadow-sm border border-slate-100  sticky z-50 top-2">
          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
            <div className="relative w-full sm:w-64">
              <Search className="absolute left-3 top-2.5 text-slate-400 w-4 h-4" />
