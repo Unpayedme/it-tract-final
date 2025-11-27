@@ -262,7 +262,6 @@ const App = () => {
 
   const prescriptiveTable = [
     { issue: "Low Regular attendance", recommendation: 'Launch "Bring-a-Friend" promo', result: "+10–15% Regular attendance" },
-    { issue: "Coach Mia workload", recommendation: "Assign assistant trainer", result: "Balanced coaching workload" },
     { issue: "Encourage Premium upgrades", recommendation: "Offer free 1-week VIP trial", result: "2–3 new Premium members" },
     { issue: "Retain active VIPs", recommendation: "Implement loyalty rewards", result: "Higher retention" },
     { issue: "Improve satisfaction", recommendation: "Create feedback surveys", result: "Improved member feedback" },
