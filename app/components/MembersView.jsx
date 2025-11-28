@@ -116,7 +116,7 @@ const MembersView = ({
                        <span className="text-slate-400 italic">No Trainer</span>
                      )}
                    </td>
-                   <td className="p-4 font-mono text-slate-700 font-medium">${member.monthly_fee}</td>
+                   <td className="p-4 font-mono text-slate-700 font-medium">₱{member.monthly_fee}</td>
                    <td className="p-4 text-right">
                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                        <button onClick={() => handleEdit(member)} className="p-1.5 hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-sm rounded-md text-slate-500 transition-all"><Edit size={16} /></button>
