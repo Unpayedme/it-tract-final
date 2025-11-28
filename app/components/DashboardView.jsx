@@ -18,9 +18,9 @@ const DashboardView = ({ stats, chartData, prescriptions, prescriptiveTable, ser
       {/* 1. KEY METRICS CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title="Total Members" value={stats.totalMembers} subtext="Active Accounts" icon={Users} colorClass="bg-blue-500" />
-        <StatCard title="Avg. Monthly Fee" value={`$${stats.avgFee}`} subtext="Per Member" icon={Activity} colorClass="bg-emerald-500" />
+        <StatCard title="Avg. Monthly Fee" value={`₱${stats.avgFee}`} subtext="Per Member" icon={Activity} colorClass="bg-emerald-500" />
         <StatCard title="Avg. Attendance" value={stats.avgAttendance} subtext="Visits / Month" icon={TrendingUp} colorClass="bg-purple-500" />
-        <StatCard title="Est. Revenue" value={`$${stats.totalRevenue}`} subtext="Current Month" icon={ArrowUpRight} colorClass="bg-indigo-500" />
+        <StatCard title="Est. Revenue" value={`₱${stats.totalRevenue}`} subtext="Current Month" icon={ArrowUpRight} colorClass="bg-indigo-500" />
       </div>
 
       {/* 2. DESCRIPTIVE ANALYTICS SECTION */}
