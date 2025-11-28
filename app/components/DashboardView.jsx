@@ -256,7 +256,7 @@ const DashboardView = ({ stats, chartData, prescriptions, prescriptiveTable, ser
             <BrainCircuit className="text-emerald-400" />
           </div>
           <div>
-            <h3 className="font-bold text-xl">AI Prescriptions (Prescriptive)</h3>
+            <h3 className="font-bold text-xl">Prescriptive Analytics</h3>
             <p className="text-slate-400 text-sm">Automated insights based on current metrics</p>
           </div>
         </div>
