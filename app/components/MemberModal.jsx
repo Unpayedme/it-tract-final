@@ -48,7 +48,7 @@ const MemberModal = ({
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fee ($)</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fee (₱)</label>
               <input type="number" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
                 value={formData.monthly_fee} onChange={(e) => setFormData({...formData, monthly_fee: parseFloat(e.target.value)})} />
             </div>
