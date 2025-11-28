@@ -109,19 +109,19 @@ const DashboardView = ({ stats, chartData, prescriptions, prescriptiveTable, ser
                   <td className="p-4 font-medium text-slate-600">Finances</td>
                   <td className="p-4 text-slate-600">Highest Monthly Fee</td>
                   <td className="p-4 text-slate-400 italic">MAX(Fee)</td>
-                  <td className="p-4 text-right font-bold text-slate-800">${stats.highestFee}</td>
+                  <td className="p-4 text-right font-bold text-slate-800">₱{stats.highestFee}</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-medium text-slate-600">Finances</td>
                   <td className="p-4 text-slate-600">Average Monthly Fee</td>
                   <td className="p-4 text-slate-400 italic">AVERAGE(Fee)</td>
-                  <td className="p-4 text-right font-bold text-slate-800">${stats.avgFee}</td>
+                  <td className="p-4 text-right font-bold text-slate-800">₱{stats.avgFee}</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-medium text-slate-600">Finances</td>
                   <td className="p-4 text-slate-600">Total Monthly Revenue</td>
                   <td className="p-4 text-slate-400 italic">SUM(Fee)</td>
-                  <td className="p-4 text-right font-bold text-slate-800">${stats.totalRevenue}</td>
+                  <td className="p-4 text-right font-bold text-slate-800">₱{stats.totalRevenue}</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-medium text-slate-600">Staff</td>
